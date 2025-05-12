@@ -18,7 +18,7 @@
 //! Sort functionalities
 
 mod builder;
-mod cursor;
+pub mod cursor;
 mod merge;
 pub mod partial_sort;
 pub mod sort;
