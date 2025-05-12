@@ -36,7 +36,9 @@ use datafusion::prelude::SessionContext;
 use datafusion_catalog::Session;
 use datafusion_catalog::TableFunctionImpl;
 use datafusion_common::{DFSchema, ScalarValue};
-use datafusion_expr::{EmptyRelation, Expr, LogicalPlan, Projection, TableType};
+use datafusion_expr::{
+    EmptyRelation, Expr, LogicalPlan, Projection, TableScanAggregate, TableType,
+};
 
 use async_trait::async_trait;
 
@@ -135,6 +137,7 @@ impl TableProvider for SimpleCsvTable {
         state: &dyn Session,
         projection: Option<&Vec<usize>>,
         _filters: &[Expr],
+        _aggregate: Option<&TableScanAggregate>,
         _limit: Option<usize>,
     ) -> Result<Arc<dyn ExecutionPlan>> {
         let batches = if !self.exprs.is_empty() {

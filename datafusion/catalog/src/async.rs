@@ -434,7 +434,7 @@ mod tests {
     use async_trait::async_trait;
     use datafusion_common::{error::Result, Statistics, TableReference};
     use datafusion_execution::config::SessionConfig;
-    use datafusion_expr::{Expr, TableType};
+    use datafusion_expr::{Expr, TableScanAggregate, TableType};
     use datafusion_physical_plan::ExecutionPlan;
 
     use crate::{Session, TableProvider};
@@ -463,6 +463,7 @@ mod tests {
             _state: &dyn Session,
             _projection: Option<&Vec<usize>>,
             _filters: &[Expr],
+            _aggregate: Option<&TableScanAggregate>,
             _limit: Option<usize>,
         ) -> Result<Arc<dyn ExecutionPlan>> {
             unimplemented!()

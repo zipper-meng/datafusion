@@ -29,6 +29,7 @@ macro_rules! make_udaf_expr {
                 None,
                 None,
                 None,
+                false,
             ))
         }
     };
@@ -52,6 +53,7 @@ macro_rules! make_udaf_expr_and_func {
                 None,
                 None,
                 None,
+                false,
             ))
         }
 

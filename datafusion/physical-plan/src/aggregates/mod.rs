@@ -21,9 +21,9 @@ use std::any::Any;
 use std::sync::Arc;
 
 use super::{DisplayAs, ExecutionPlanProperties, PlanProperties};
+pub use crate::aggregates::no_grouping::AggregateStream;
 use crate::aggregates::{
-    no_grouping::AggregateStream, row_hash::GroupedHashAggregateStream,
-    topk_stream::GroupedTopKAggregateStream,
+    row_hash::GroupedHashAggregateStream, topk_stream::GroupedTopKAggregateStream,
 };
 use crate::execution_plan::{CardinalityEffect, EmissionType};
 use crate::metrics::{ExecutionPlanMetricsSet, MetricsSet};
@@ -71,6 +71,12 @@ pub enum AggregateMode {
     ///
     /// This is the first phase of a multi-phase aggregation.
     Partial,
+    /// PartialMerge is used to merge aggregation buffers containing intermediate
+    /// results for this function.
+    /// This function updates the given aggregation buffer by merging multiple
+    /// aggregation buffers.
+    /// When it has processed all input rows, the aggregation buffer is returned.
+    PartialMerge,
     /// *Final* of multiple layers of aggregation, in exactly one partition
     ///
     /// Final aggregate that produces a single partition of output by combining
@@ -122,6 +128,7 @@ impl AggregateMode {
     pub fn is_first_stage(&self) -> bool {
         match self {
             AggregateMode::Partial
+            | AggregateMode::PartialMerge
             | AggregateMode::Single
             | AggregateMode::SinglePartitioned => true,
             AggregateMode::Final | AggregateMode::FinalPartitioned => false,
@@ -876,7 +883,7 @@ impl ExecutionPlan for AggregateExec {
 
     fn required_input_distribution(&self) -> Vec<Distribution> {
         match &self.mode {
-            AggregateMode::Partial => {
+            AggregateMode::Partial | AggregateMode::PartialMerge => {
                 vec![Distribution::UnspecifiedDistribution]
             }
             AggregateMode::FinalPartitioned | AggregateMode::SinglePartitioned => {
@@ -1002,7 +1009,7 @@ fn create_schema(
     fields.extend(group_by.output_fields(input_schema)?);
 
     match mode {
-        AggregateMode::Partial => {
+        AggregateMode::Partial | AggregateMode::PartialMerge => {
             // in partial mode, the fields of the accumulator's state
             for expr in aggr_expr {
                 fields.extend(expr.state_fields()?.iter().cloned());
@@ -1216,7 +1223,9 @@ pub fn aggregate_expressions(
             })
             .collect()),
         // In this mode, we build the merge expressions of the aggregation.
-        AggregateMode::Final | AggregateMode::FinalPartitioned => {
+        AggregateMode::Final
+        | AggregateMode::FinalPartitioned
+        | AggregateMode::PartialMerge => {
             let mut col_idx_base = col_idx_base;
             aggr_expr
                 .iter()
@@ -1265,7 +1274,7 @@ pub fn finalize_aggregation(
     mode: &AggregateMode,
 ) -> Result<Vec<ArrayRef>> {
     match mode {
-        AggregateMode::Partial => {
+        AggregateMode::Partial | AggregateMode::PartialMerge => {
             // Build the vector of states
             accumulators
                 .iter_mut()

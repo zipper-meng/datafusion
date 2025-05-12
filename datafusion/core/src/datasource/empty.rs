@@ -20,14 +20,14 @@
 use std::any::Any;
 use std::sync::Arc;
 
+use crate::datasource::{TableProvider, TableType};
+use crate::error::Result;
+use crate::logical_expr::Expr;
 use arrow::datatypes::*;
 use async_trait::async_trait;
 use datafusion_catalog::Session;
 use datafusion_common::project_schema;
-
-use crate::datasource::{TableProvider, TableType};
-use crate::error::Result;
-use crate::logical_expr::Expr;
+use datafusion_expr::TableScanAggregate;
 use datafusion_physical_plan::empty::EmptyExec;
 use datafusion_physical_plan::ExecutionPlan;
 
@@ -74,6 +74,7 @@ impl TableProvider for EmptyTable {
         _state: &dyn Session,
         projection: Option<&Vec<usize>>,
         _filters: &[Expr],
+        _aggregate: Option<&TableScanAggregate>,
         _limit: Option<usize>,
     ) -> Result<Arc<dyn ExecutionPlan>> {
         // even though there is no data, projections apply

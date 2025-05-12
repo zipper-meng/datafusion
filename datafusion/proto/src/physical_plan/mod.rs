@@ -929,6 +929,7 @@ impl protobuf::PhysicalPlanNode {
         })?;
         let agg_mode: AggregateMode = match mode {
             protobuf::AggregateMode::Partial => AggregateMode::Partial,
+            protobuf::AggregateMode::PartialMerge => AggregateMode::PartialMerge,
             protobuf::AggregateMode::Final => AggregateMode::Final,
             protobuf::AggregateMode::FinalPartitioned => AggregateMode::FinalPartitioned,
             protobuf::AggregateMode::Single => AggregateMode::Single,
@@ -2144,6 +2145,7 @@ impl protobuf::PhysicalPlanNode {
 
         let agg_mode = match exec.mode() {
             AggregateMode::Partial => protobuf::AggregateMode::Partial,
+            AggregateMode::PartialMerge => protobuf::AggregateMode::PartialMerge,
             AggregateMode::Final => protobuf::AggregateMode::Final,
             AggregateMode::FinalPartitioned => protobuf::AggregateMode::FinalPartitioned,
             AggregateMode::Single => protobuf::AggregateMode::Single,

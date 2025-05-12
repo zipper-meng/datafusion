@@ -428,6 +428,7 @@ impl AggregateUDFImpl for SimplifiedGeoMeanUdaf {
                 aggregate_function.params.filter,
                 aggregate_function.params.order_by,
                 aggregate_function.params.null_treatment,
+                false,
             )))
         };
         Some(Box::new(simplify))

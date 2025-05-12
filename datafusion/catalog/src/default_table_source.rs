@@ -24,7 +24,10 @@ use crate::TableProvider;
 
 use arrow::datatypes::SchemaRef;
 use datafusion_common::{internal_err, Constraints};
-use datafusion_expr::{Expr, TableProviderFilterPushDown, TableSource, TableType};
+use datafusion_expr::{
+    Expr, TableProviderAggregationPushDown, TableProviderFilterPushDown, TableSource,
+    TableType,
+};
 
 /// Implements [`TableSource`] for a [`TableProvider`]
 ///
@@ -76,6 +79,24 @@ impl TableSource for DefaultTableSource {
         filter: &[&Expr],
     ) -> datafusion_common::Result<Vec<TableProviderFilterPushDown>> {
         self.table_provider.supports_filters_pushdown(filter)
+    }
+
+    fn supports_aggregate_pushdown(
+        &self,
+        group_expr: &[Expr],
+        aggr_expr: &[Expr],
+    ) -> datafusion_common::Result<TableProviderAggregationPushDown> {
+        self.table_provider
+            .supports_aggregate_pushdown(group_expr, aggr_expr)
+    }
+
+    fn push_down_projection(
+        &self,
+        projection: &[usize],
+        is_tag_scan: bool,
+    ) -> Option<Vec<usize>> {
+        self.table_provider
+            .push_down_projection(projection, is_tag_scan)
     }
 
     fn get_logical_plan(&self) -> Option<Cow<datafusion_expr::LogicalPlan>> {
@@ -136,6 +157,7 @@ fn preserves_table_type() {
             _: &dyn crate::Session,
             _: Option<&Vec<usize>>,
             _: &[Expr],
+            _: Option<&datafusion_expr::TableScanAggregate>,
             _: Option<usize>,
         ) -> Result<Arc<dyn datafusion_physical_plan::ExecutionPlan>, DataFusionError>
         {

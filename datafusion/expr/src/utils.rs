@@ -625,7 +625,7 @@ pub fn find_out_reference_exprs(expr: &Expr) -> Vec<Expr> {
 /// Search the provided `Expr`'s, and all of their nested `Expr`, for any that
 /// pass the provided test. The returned `Expr`'s are deduplicated and returned
 /// in order of appearance (depth first).
-fn find_exprs_in_exprs<'a, F>(
+pub fn find_exprs_in_exprs<'a, F>(
     exprs: impl IntoIterator<Item = &'a Expr>,
     test_fn: &F,
 ) -> Vec<Expr>

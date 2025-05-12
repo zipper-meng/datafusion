@@ -98,7 +98,9 @@ pub use literal::{lit, lit_timestamp_nano, Literal, TimestampLiteral};
 pub use logical_plan::*;
 pub use partition_evaluator::PartitionEvaluator;
 pub use sqlparser;
-pub use table_source::{TableProviderFilterPushDown, TableSource, TableType};
+pub use table_source::{
+    TableProviderAggregationPushDown, TableProviderFilterPushDown, TableSource, TableType,
+};
 pub use udaf::{
     aggregate_doc_sections, AggregateUDF, AggregateUDFImpl, ReversedUDAF,
     SetMonotonicity, StatisticsArgs,

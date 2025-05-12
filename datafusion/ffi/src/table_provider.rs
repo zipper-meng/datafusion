@@ -55,6 +55,7 @@ use super::{
     session_config::FFI_SessionConfig,
 };
 use datafusion::error::Result;
+use datafusion::logical_expr::TableScanAggregate;
 
 /// A stable struct for sharing [`TableProvider`] across FFI boundaries.
 ///
@@ -262,7 +263,13 @@ unsafe extern "C" fn scan_fn_wrapper(
 
         let plan = rresult_return!(
             internal_provider
-                .scan(&ctx.state(), Some(&projections), &filters, limit.into())
+                .scan(
+                    &ctx.state(),
+                    Some(&projections),
+                    &filters,
+                    None,
+                    limit.into()
+                )
                 .await
         );
 
@@ -415,6 +422,7 @@ impl TableProvider for ForeignTableProvider {
         session: &dyn Session,
         projection: Option<&Vec<usize>>,
         filters: &[Expr],
+        _aggregate: Option<&TableScanAggregate>,
         limit: Option<usize>,
     ) -> Result<Arc<dyn ExecutionPlan>> {
         let session_config: FFI_SessionConfig = session.config().into();

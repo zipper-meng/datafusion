@@ -50,6 +50,20 @@ pub enum TableProviderFilterPushDown {
     Exact,
 }
 
+#[derive(Debug, Clone, PartialEq, Eq)]
+pub enum TableProviderAggregationPushDown {
+    // Cannot push down
+    Unsupported,
+    // After pushing down the aggregate to the data source, the data source can still output data with
+    // duplicated keys, which is OK as DataFusion will do GROUP BY key again.
+    // The final query plan save `final aggregate` node.
+    // Note that, if there is no grouping expression and the data source's partition is signal, need Ungrouped,
+    Ungrouped,
+    // After pushing down the aggregate to the data source, the data source can output data without
+    // duplicated keys. The final query plan can remove `Aggregate` node.
+    Grouped,
+}
+
 /// Indicates the type of this table for metadata/catalog purposes.
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
 pub enum TableType {
@@ -92,6 +106,10 @@ impl std::fmt::Display for TableType {
 /// [`TableProvider`]: https://docs.rs/datafusion/latest/datafusion/datasource/provider/trait.TableProvider.html
 /// [`DefaultTableSource`]: https://docs.rs/datafusion/latest/datafusion/datasource/default_table_source/struct.DefaultTableSource.html
 pub trait TableSource: Sync + Send {
+    fn name(&self) -> &str {
+        "UNKNOWN"
+    }
+
     fn as_any(&self) -> &dyn Any;
 
     /// Get a reference to the schema for this table
@@ -116,6 +134,24 @@ pub trait TableSource: Sync + Send {
         Ok((0..filters.len())
             .map(|_| TableProviderFilterPushDown::Unsupported)
             .collect())
+    }
+
+    /// Tests whether the aggregation can be pushed down to datasource.
+    fn supports_aggregate_pushdown(
+        &self,
+        _group_expr: &[Expr],
+        _aggr_expr: &[Expr],
+    ) -> Result<TableProviderAggregationPushDown> {
+        Ok(TableProviderAggregationPushDown::Unsupported)
+    }
+
+    /// Projection pushed down to the data source.
+    fn push_down_projection(
+        &self,
+        _projection: &[usize],
+        _is_tag_scan: bool,
+    ) -> Option<Vec<usize>> {
+        None
     }
 
     /// Get the Logical plan of this table provider, if available.

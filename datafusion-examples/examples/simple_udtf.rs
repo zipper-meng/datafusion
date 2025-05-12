@@ -28,7 +28,7 @@ use datafusion::datasource::TableProvider;
 use datafusion::error::Result;
 use datafusion::execution::context::ExecutionProps;
 use datafusion::logical_expr::simplify::SimplifyContext;
-use datafusion::logical_expr::{Expr, TableType};
+use datafusion::logical_expr::{Expr, TableScanAggregate, TableType};
 use datafusion::optimizer::simplify_expressions::ExprSimplifier;
 use datafusion::physical_plan::ExecutionPlan;
 use datafusion::prelude::*;
@@ -99,6 +99,7 @@ impl TableProvider for LocalCsvTable {
         _state: &dyn Session,
         projection: Option<&Vec<usize>>,
         _filters: &[Expr],
+        _aggregate: Option<&TableScanAggregate>,
         _limit: Option<usize>,
     ) -> Result<Arc<dyn ExecutionPlan>> {
         let batches = if let Some(max_return_lines) = self.limit {

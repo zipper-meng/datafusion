@@ -35,7 +35,9 @@ use datafusion::datasource::physical_plan::{
 use datafusion::datasource::TableProvider;
 use datafusion::execution::object_store::ObjectStoreUrl;
 use datafusion::logical_expr::utils::conjunction;
-use datafusion::logical_expr::{TableProviderFilterPushDown, TableType};
+use datafusion::logical_expr::{
+    TableProviderFilterPushDown, TableScanAggregate, TableType,
+};
 use datafusion::parquet::arrow::arrow_reader::{
     ArrowReaderOptions, ParquetRecordBatchReaderBuilder, RowSelection, RowSelector,
 };
@@ -467,6 +469,7 @@ impl TableProvider for IndexTableProvider {
         state: &dyn Session,
         projection: Option<&Vec<usize>>,
         filters: &[Expr],
+        _aggregate: Option<&TableScanAggregate>,
         limit: Option<usize>,
     ) -> Result<Arc<dyn ExecutionPlan>> {
         let indexed_file = &self.indexed_file;

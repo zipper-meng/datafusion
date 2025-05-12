@@ -28,7 +28,7 @@ use datafusion::arrow::record_batch::RecordBatch;
 use datafusion::datasource::{provider_as_source, TableProvider, TableType};
 use datafusion::error::Result;
 use datafusion::execution::context::TaskContext;
-use datafusion::logical_expr::LogicalPlanBuilder;
+use datafusion::logical_expr::{LogicalPlanBuilder, TableScanAggregate};
 use datafusion::physical_expr::EquivalenceProperties;
 use datafusion::physical_plan::execution_plan::{Boundedness, EmissionType};
 use datafusion::physical_plan::memory::MemoryStream;
@@ -181,6 +181,7 @@ impl TableProvider for CustomDataSource {
         projection: Option<&Vec<usize>>,
         // filters and limit can be used here to inject some push-down operations if needed
         _filters: &[Expr],
+        _aggregate: Option<&TableScanAggregate>,
         _limit: Option<usize>,
     ) -> Result<Arc<dyn ExecutionPlan>> {
         return self.create_physical_plan(projection, self.schema()).await;

@@ -445,6 +445,7 @@ impl DefaultPhysicalPlanner {
                 source,
                 projection,
                 filters,
+                aggregate,
                 fetch,
                 ..
             }) => {
@@ -454,7 +455,13 @@ impl DefaultPhysicalPlanner {
                 // referred to in the query
                 let filters = unnormalize_cols(filters.iter().cloned());
                 source
-                    .scan(session_state, projection.as_ref(), &filters, *fetch)
+                    .scan(
+                        session_state,
+                        projection.as_ref(),
+                        &filters,
+                        aggregate.as_ref(),
+                        *fetch,
+                    )
                     .await?
             }
             LogicalPlan::Values(Values { values, schema }) => {
@@ -1590,6 +1597,7 @@ pub fn create_aggregate_expr_with_name_and_maybe_filter(
                     filter,
                     order_by,
                     null_treatment,
+                    can_be_pushed_down: _,
                 },
         }) => {
             let name = if let Some(name) = name {

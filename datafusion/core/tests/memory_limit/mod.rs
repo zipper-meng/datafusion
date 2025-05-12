@@ -46,7 +46,7 @@ use datafusion_execution::memory_pool::{
 };
 use datafusion_execution::runtime_env::RuntimeEnv;
 use datafusion_execution::{DiskManager, TaskContext};
-use datafusion_expr::{Expr, TableType};
+use datafusion_expr::{Expr, TableScanAggregate, TableType};
 use datafusion_physical_expr::{LexOrdering, PhysicalSortExpr};
 use datafusion_physical_optimizer::join_selection::JoinSelection;
 use datafusion_physical_optimizer::PhysicalOptimizerRule;
@@ -1055,6 +1055,7 @@ impl TableProvider for SortedTableProvider {
         _state: &dyn Session,
         projection: Option<&Vec<usize>>,
         _filters: &[Expr],
+        _aggregate: Option<&TableScanAggregate>,
         _limit: Option<usize>,
     ) -> Result<Arc<dyn ExecutionPlan>> {
         let mem_conf = MemorySourceConfig::try_new(

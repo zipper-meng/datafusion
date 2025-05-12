@@ -45,6 +45,7 @@ use datafusion_physical_plan::placeholder_row::PlaceholderRowExec;
 use datafusion_physical_plan::PlanProperties;
 
 use async_trait::async_trait;
+use datafusion_expr::TableScanAggregate;
 use futures::stream::Stream;
 
 mod provider_filter_pushdown;
@@ -223,6 +224,7 @@ impl TableProvider for CustomTableProvider {
         _state: &dyn Session,
         projection: Option<&Vec<usize>>,
         _filters: &[Expr],
+        _aggregate: Option<&TableScanAggregate>,
         _limit: Option<usize>,
     ) -> Result<Arc<dyn ExecutionPlan>> {
         Ok(Arc::new(CustomExecutionPlan::new(projection.cloned())))

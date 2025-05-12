@@ -377,6 +377,7 @@ impl<S: ContextProvider> SqlToRel<'_, S> {
                     filter,
                     order_by,
                     null_treatment,
+                    can_be_pushed_down: false,
                 };
                 for planner in self.context_provider.get_expr_planners().iter() {
                     match planner.plan_aggregate(aggregate_expr)? {
@@ -392,6 +393,7 @@ impl<S: ContextProvider> SqlToRel<'_, S> {
                     filter,
                     order_by,
                     null_treatment,
+                    can_be_pushed_down,
                 } = aggregate_expr;
 
                 return Ok(Expr::AggregateFunction(expr::AggregateFunction::new_udf(
@@ -401,6 +403,7 @@ impl<S: ContextProvider> SqlToRel<'_, S> {
                     filter,
                     order_by,
                     null_treatment,
+                    can_be_pushed_down,
                 )));
             }
         }

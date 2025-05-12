@@ -24,7 +24,7 @@ use datafusion::{
     prelude::{SessionConfig, SessionContext},
 };
 use datafusion_catalog::{Session, TableProvider};
-use datafusion_expr::{dml::InsertOp, Expr, TableType};
+use datafusion_expr::{dml::InsertOp, Expr, TableScanAggregate, TableType};
 use datafusion_physical_expr::{EquivalenceProperties, Partitioning};
 use datafusion_physical_plan::{
     execution_plan::{Boundedness, EmissionType},
@@ -102,6 +102,7 @@ impl TableProvider for TestInsertTableProvider {
         _state: &dyn Session,
         _projection: Option<&Vec<usize>>,
         _filters: &[Expr],
+        _aggregate: Option<&TableScanAggregate>,
         _limit: Option<usize>,
     ) -> Result<Arc<dyn ExecutionPlan>> {
         unimplemented!("TestInsertTableProvider is a stub for testing.")

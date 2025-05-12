@@ -85,7 +85,7 @@ async fn parquet_partition_pruning_filter() -> Result<()> {
         Expr::eq(col("day"), lit(28)),
         Expr::gt(col("id"), lit(1)),
     ];
-    let exec = table.scan(&ctx.state(), None, &filters, None).await?;
+    let exec = table.scan(&ctx.state(), None, &filters, None, None).await?;
     let data_source_exec = exec.as_any().downcast_ref::<DataSourceExec>().unwrap();
     if let Some((_, parquet_config)) =
         data_source_exec.downcast_to_file_source::<ParquetSource>()

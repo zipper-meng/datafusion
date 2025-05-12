@@ -24,8 +24,8 @@ use std::sync::Arc;
 
 use crate::TableProvider;
 use datafusion_common::error::Result;
-use datafusion_expr::Expr;
 use datafusion_expr::TableType;
+use datafusion_expr::{Expr, TableScanAggregate};
 use datafusion_physical_expr::create_physical_sort_exprs;
 use datafusion_physical_plan::repartition::RepartitionExec;
 use datafusion_physical_plan::{
@@ -133,7 +133,7 @@ impl MemTable {
     ) -> Result<Self> {
         let schema = t.schema();
         let constraints = t.constraints();
-        let exec = t.scan(state, None, &[], None).await?;
+        let exec = t.scan(state, None, &[], None, None).await?;
         let partition_count = exec.output_partitioning().partition_count();
 
         let mut join_set = JoinSet::new();
@@ -220,6 +220,7 @@ impl TableProvider for MemTable {
         state: &dyn Session,
         projection: Option<&Vec<usize>>,
         _filters: &[Expr],
+        _aggregate: Option<&TableScanAggregate>,
         _limit: Option<usize>,
     ) -> Result<Arc<dyn ExecutionPlan>> {
         let mut partitions = vec![];

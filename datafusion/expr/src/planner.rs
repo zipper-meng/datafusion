@@ -296,6 +296,9 @@ pub struct RawAggregateExpr {
     pub filter: Option<Box<Expr>>,
     pub order_by: Option<Vec<SortExpr>>,
     pub null_treatment: Option<NullTreatment>,
+
+    /// Whether it can be pushed down, TODO(zipper): remove this
+    pub can_be_pushed_down: bool,
 }
 
 /// This structure is used by `WindowFunctionPlanner` to plan operators with

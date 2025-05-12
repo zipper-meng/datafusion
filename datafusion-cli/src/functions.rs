@@ -31,7 +31,7 @@ use datafusion::common::{plan_err, Column};
 use datafusion::datasource::memory::MemorySourceConfig;
 use datafusion::datasource::TableProvider;
 use datafusion::error::Result;
-use datafusion::logical_expr::Expr;
+use datafusion::logical_expr::{Expr, TableScanAggregate};
 use datafusion::physical_plan::ExecutionPlan;
 use datafusion::scalar::ScalarValue;
 
@@ -240,6 +240,7 @@ impl TableProvider for ParquetMetadataTable {
         _state: &dyn Session,
         projection: Option<&Vec<usize>>,
         _filters: &[Expr],
+        _aggregate: Option<&TableScanAggregate>,
         _limit: Option<usize>,
     ) -> Result<Arc<dyn ExecutionPlan>> {
         Ok(MemorySourceConfig::try_new_exec(

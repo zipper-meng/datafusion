@@ -25,7 +25,8 @@ use arrow::datatypes::SchemaRef;
 use async_trait::async_trait;
 use datafusion_common::Result;
 use datafusion_common::{not_impl_err, Constraints, Statistics};
-use datafusion_expr::Expr;
+use datafusion_expr::logical_plan::TableScanAggregate;
+use datafusion_expr::{Expr, TableProviderAggregationPushDown};
 
 use datafusion_expr::dml::InsertOp;
 use datafusion_expr::{
@@ -168,6 +169,7 @@ pub trait TableProvider: Debug + Sync + Send {
         state: &dyn Session,
         projection: Option<&Vec<usize>>,
         filters: &[Expr],
+        aggregate: Option<&TableScanAggregate>,
         limit: Option<usize>,
     ) -> Result<Arc<dyn ExecutionPlan>>;
 
@@ -208,6 +210,7 @@ pub trait TableProvider: Debug + Sync + Send {
     /// # use datafusion_catalog::{TableProvider, Session};
     /// # use datafusion_common::Result;
     /// # use datafusion_expr::{Expr, TableProviderFilterPushDown, TableType};
+    /// # use datafusion_expr::logical_plan::TableScanAggregate;
     /// # use datafusion_physical_plan::ExecutionPlan;
     /// // Define a struct that implements the TableProvider trait
     /// #[derive(Debug)]
@@ -218,7 +221,7 @@ pub trait TableProvider: Debug + Sync + Send {
     /// # fn as_any(&self) -> &dyn Any { todo!() }
     /// # fn schema(&self) -> SchemaRef { todo!() }
     /// # fn table_type(&self) -> TableType { todo!() }
-    /// # async fn scan(&self, s: &dyn Session, p: Option<&Vec<usize>>, f: &[Expr], l: Option<usize>) -> Result<Arc<dyn ExecutionPlan>> {
+    /// # async fn scan(&self, s: &dyn Session, p: Option<&Vec<usize>>, f: &[Expr], a: Option<&TableScanAggregate>, l: Option<usize>) -> Result<Arc<dyn ExecutionPlan>> {
     ///         todo!()
     /// # }
     ///     // Override the supports_filters_pushdown to evaluate which expressions
@@ -259,6 +262,24 @@ pub trait TableProvider: Debug + Sync + Send {
             TableProviderFilterPushDown::Unsupported;
             filters.len()
         ])
+    }
+
+    /// Tests whether the aggregation can be pushed down to datasource.
+    fn supports_aggregate_pushdown(
+        &self,
+        _group_expr: &[Expr],
+        _aggr_expr: &[Expr],
+    ) -> Result<TableProviderAggregationPushDown> {
+        Ok(TableProviderAggregationPushDown::Unsupported)
+    }
+
+    /// Projection pushed down to the data source.
+    fn push_down_projection(
+        &self,
+        _projection: &[usize],
+        _is_tag_scan: bool,
+    ) -> Option<Vec<usize>> {
+        None
     }
 
     /// Get statistics for this table, if available

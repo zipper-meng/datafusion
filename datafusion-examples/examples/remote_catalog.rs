@@ -38,7 +38,7 @@ use datafusion::common::Result;
 use datafusion::common::{assert_batches_eq, internal_datafusion_err, plan_err};
 use datafusion::datasource::memory::MemorySourceConfig;
 use datafusion::execution::SendableRecordBatchStream;
-use datafusion::logical_expr::{Expr, TableType};
+use datafusion::logical_expr::{Expr, TableScanAggregate, TableType};
 use datafusion::physical_plan::stream::RecordBatchStreamAdapter;
 use datafusion::physical_plan::ExecutionPlan;
 use datafusion::prelude::{DataFrame, SessionContext};
@@ -239,6 +239,7 @@ impl TableProvider for RemoteTable {
         _state: &dyn Session,
         projection: Option<&Vec<usize>>,
         _filters: &[Expr],
+        _aggregate: Option<&TableScanAggregate>,
         _limit: Option<usize>,
     ) -> Result<Arc<dyn ExecutionPlan>> {
         // Note that `scan` is called once the plan begin execution, and thus is

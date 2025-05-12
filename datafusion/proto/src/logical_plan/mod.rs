@@ -270,6 +270,7 @@ fn from_table_source(
         projection: None,
         projected_schema,
         filters: vec![],
+        aggregate: None,
         fetch: None,
     });
 

@@ -2869,6 +2869,7 @@ mod tests {
             )?),
             projection,
             source: Arc::new(test_provider),
+            aggregate: None,
             fetch: None,
         });
 

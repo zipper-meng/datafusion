@@ -40,7 +40,7 @@ use futures::stream::{Stream, StreamExt};
 use super::AggregateExec;
 
 /// stream struct for aggregation without grouping columns
-pub(crate) struct AggregateStream {
+pub struct AggregateStream {
     stream: BoxStream<'static, Result<RecordBatch>>,
     schema: SchemaRef,
 }
@@ -82,7 +82,9 @@ impl AggregateStream {
             AggregateMode::Partial
             | AggregateMode::Single
             | AggregateMode::SinglePartitioned => agg_filter_expr,
-            AggregateMode::Final | AggregateMode::FinalPartitioned => {
+            AggregateMode::Final
+            | AggregateMode::FinalPartitioned
+            | AggregateMode::PartialMerge => {
                 vec![None; agg.aggr_expr.len()]
             }
         };
@@ -234,6 +236,10 @@ fn aggregate_batch(
                 | AggregateMode::Single
                 | AggregateMode::SinglePartitioned => accum.update_batch(&values),
                 AggregateMode::Final | AggregateMode::FinalPartitioned => {
+                    accum.merge_batch(&values)
+                }
+                AggregateMode::PartialMerge => {
+                    // TODO: does it adapts stream processing
                     accum.merge_batch(&values)
                 }
             };

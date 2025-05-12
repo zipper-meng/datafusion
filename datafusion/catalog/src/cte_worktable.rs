@@ -28,7 +28,9 @@ use datafusion_physical_plan::work_table::WorkTableExec;
 use datafusion_physical_plan::ExecutionPlan;
 
 use datafusion_common::error::Result;
-use datafusion_expr::{Expr, LogicalPlan, TableProviderFilterPushDown, TableType};
+use datafusion_expr::{
+    Expr, LogicalPlan, TableProviderFilterPushDown, TableScanAggregate, TableType,
+};
 
 use crate::TableProvider;
 
@@ -88,6 +90,7 @@ impl TableProvider for CteWorkTable {
         _state: &dyn Session,
         _projection: Option<&Vec<usize>>,
         _filters: &[Expr],
+        _aggregate: Option<&TableScanAggregate>,
         _limit: Option<usize>,
     ) -> Result<Arc<dyn ExecutionPlan>> {
         // TODO: pushdown filters and limits

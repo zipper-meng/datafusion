@@ -165,6 +165,7 @@ impl ExprPlanner for FieldAccessPlanner {
                                 filter,
                                 order_by,
                                 null_treatment,
+                                can_be_pushed_down,
                             },
                     }) if is_array_agg(&func) => Ok(PlannerResult::Planned(
                         Expr::AggregateFunction(AggregateFunction::new_udf(
@@ -174,6 +175,7 @@ impl ExprPlanner for FieldAccessPlanner {
                             filter,
                             order_by,
                             null_treatment,
+                            can_be_pushed_down,
                         )),
                     )),
                     // special case for map access with

@@ -57,12 +57,19 @@ use datafusion_common::tree_node::{
 /// indices, and then removes any unnecessary columns. It also removes any
 /// unnecessary projections from the plan tree.
 #[derive(Default, Debug)]
-pub struct OptimizeProjections {}
+pub struct OptimizeProjections {
+    is_tag_scan: bool,
+}
 
 impl OptimizeProjections {
     #[allow(missing_docs)]
     pub fn new() -> Self {
-        Self {}
+        Self { is_tag_scan: false }
+    }
+
+    #[allow(missing_docs)]
+    pub fn with_tag_scan(is_tag_scan: bool) -> Self {
+        Self { is_tag_scan }
     }
 }
 
@@ -248,6 +255,7 @@ fn optimize_projections(
                 source,
                 projection,
                 filters,
+                aggregate,
                 fetch,
                 projected_schema: _,
             } = table_scan;
@@ -263,6 +271,7 @@ fn optimize_projections(
                 source,
                 Some(projection),
                 filters,
+                aggregate,
                 fetch,
             )
             .map(LogicalPlan::TableScan)

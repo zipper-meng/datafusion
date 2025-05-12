@@ -60,7 +60,7 @@ mod tests {
 
         // scan with projection
         let exec = provider
-            .scan(&session_ctx.state(), Some(&vec![2, 1]), &[], None)
+            .scan(&session_ctx.state(), Some(&vec![2, 1]), &[], None, None)
             .await?;
 
         let mut it = exec.execute(0, task_ctx)?;
@@ -94,7 +94,9 @@ mod tests {
 
         let provider = MemTable::try_new(schema, vec![vec![batch]])?;
 
-        let exec = provider.scan(&session_ctx.state(), None, &[], None).await?;
+        let exec = provider
+            .scan(&session_ctx.state(), None, &[], None, None)
+            .await?;
         let mut it = exec.execute(0, task_ctx)?;
         let batch1 = it.next().await.unwrap()?;
         assert_eq!(3, batch1.schema().fields().len());
@@ -127,7 +129,7 @@ mod tests {
         let projection: Vec<usize> = vec![0, 4];
 
         match provider
-            .scan(&session_ctx.state(), Some(&projection), &[], None)
+            .scan(&session_ctx.state(), Some(&projection), &[], None, None)
             .await
         {
             Err(DataFusionError::ArrowError(ArrowError::SchemaError(e), _)) => {
@@ -251,7 +253,9 @@ mod tests {
         let provider =
             MemTable::try_new(Arc::new(merged_schema), vec![vec![batch1, batch2]])?;
 
-        let exec = provider.scan(&session_ctx.state(), None, &[], None).await?;
+        let exec = provider
+            .scan(&session_ctx.state(), None, &[], None, None)
+            .await?;
         let mut it = exec.execute(0, task_ctx)?;
         let batch1 = it.next().await.unwrap()?;
         assert_eq!(3, batch1.schema().fields().len());

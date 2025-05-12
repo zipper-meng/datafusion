@@ -260,6 +260,7 @@ impl TreeNode for Expr {
                         filter,
                         order_by,
                         null_treatment,
+                        can_be_pushed_down,
                     },
             }) => (args, filter, order_by).map_elements(f)?.map_data(
                 |(new_args, new_filter, new_order_by)| {
@@ -270,6 +271,7 @@ impl TreeNode for Expr {
                         new_filter,
                         new_order_by,
                         null_treatment,
+                        can_be_pushed_down,
                     )))
                 },
             )?,

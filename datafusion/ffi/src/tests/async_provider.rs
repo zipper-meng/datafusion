@@ -27,10 +27,12 @@
 
 use std::{any::Any, fmt::Debug, sync::Arc};
 
+use super::create_record_batch;
 use crate::table_provider::FFI_TableProvider;
 use arrow::array::RecordBatch;
 use arrow::datatypes::Schema;
 use async_trait::async_trait;
+use datafusion::logical_expr::TableScanAggregate;
 use datafusion::{
     catalog::{Session, TableProvider},
     error::{DataFusionError, Result},
@@ -44,8 +46,6 @@ use tokio::{
     runtime::Handle,
     sync::{broadcast, mpsc},
 };
-
-use super::create_record_batch;
 
 #[derive(Debug)]
 pub struct AsyncTableProvider {
@@ -143,6 +143,7 @@ impl TableProvider for AsyncTableProvider {
         _state: &dyn Session,
         _projection: Option<&Vec<usize>>,
         _filters: &[Expr],
+        _aggregate: Option<&TableScanAggregate>,
         _limit: Option<usize>,
     ) -> Result<Arc<dyn ExecutionPlan>> {
         Ok(Arc::new(AsyncTestExecutionPlan::new(

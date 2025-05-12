@@ -440,9 +440,9 @@ impl LogicalPlan {
                 // update extension to just observer Exprs
                 extension.node.expressions().apply_elements(f)
             }
-            LogicalPlan::TableScan(TableScan { filters, .. }) => {
-                filters.apply_elements(f)
-            }
+            LogicalPlan::TableScan(TableScan {
+                filters, aggregate, ..
+            }) if aggregate.is_none() => filters.apply_elements(f),
             LogicalPlan::Unnest(unnest) => {
                 let columns = unnest.exec_columns.clone();
 
@@ -479,7 +479,8 @@ impl LogicalPlan {
             | LogicalPlan::Dml(_)
             | LogicalPlan::Ddl(_)
             | LogicalPlan::Copy(_)
-            | LogicalPlan::DescribeTable(_) => Ok(TreeNodeRecursion::Continue),
+            | LogicalPlan::DescribeTable(_)
+            | LogicalPlan::TableScan(_) => Ok(TreeNodeRecursion::Continue),
         }
     }
 
@@ -611,6 +612,7 @@ impl LogicalPlan {
                 projection,
                 projected_schema,
                 filters,
+                aggregate,
                 fetch,
             }) => filters.map_elements(f)?.update_data(|filters| {
                 LogicalPlan::TableScan(TableScan {
@@ -619,6 +621,7 @@ impl LogicalPlan {
                     projection,
                     projected_schema,
                     filters,
+                    aggregate,
                     fetch,
                 })
             }),

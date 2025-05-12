@@ -160,6 +160,7 @@ impl AggregateUDF {
             None,
             None,
             None,
+            false,
         ))
     }
 
@@ -430,6 +431,7 @@ pub trait AggregateUDFImpl: Debug + Send + Sync {
             filter,
             order_by,
             null_treatment,
+            can_be_pushed_down: _,
         } = params;
 
         let mut schema_name = String::new();
@@ -469,6 +471,7 @@ pub trait AggregateUDFImpl: Debug + Send + Sync {
             filter,
             order_by,
             null_treatment,
+            can_be_pushed_down: _,
         } = params;
 
         let mut schema_name = String::new();
@@ -560,6 +563,7 @@ pub trait AggregateUDFImpl: Debug + Send + Sync {
             filter,
             order_by,
             null_treatment,
+            can_be_pushed_down: _,
         } = params;
 
         let mut display_name = String::new();

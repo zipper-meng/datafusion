@@ -61,7 +61,7 @@ use datafusion_expr::{
     expr::{Alias, ScalarFunction},
     is_null, lit,
     utils::COUNT_STAR_EXPANSION,
-    SortExpr, TableProviderFilterPushDown, UNNAMED_TABLE,
+    SortExpr, TableProviderFilterPushDown, TableScanAggregate, UNNAMED_TABLE,
 };
 use datafusion_functions::core::coalesce;
 use datafusion_functions_aggregate::expr_fn::{
@@ -2199,6 +2199,7 @@ impl TableProvider for DataFrameTableProvider {
         state: &dyn Session,
         projection: Option<&Vec<usize>>,
         filters: &[Expr],
+        _aggregate: Option<&TableScanAggregate>,
         limit: Option<usize>,
     ) -> Result<Arc<dyn ExecutionPlan>> {
         let mut expr = LogicalPlanBuilder::from(self.plan.clone());

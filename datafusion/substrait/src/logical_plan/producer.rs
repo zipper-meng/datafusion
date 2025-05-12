@@ -1239,6 +1239,7 @@ pub fn from_aggregate_function(
                 filter,
                 order_by,
                 null_treatment: _null_treatment,
+                can_be_pushed_down: _,
             },
     } = agg_fn;
     let sorts = if let Some(order_by) = order_by {

@@ -32,7 +32,7 @@ use datafusion::datasource::physical_plan::{FileScanConfigBuilder, ParquetSource
 use datafusion::datasource::TableProvider;
 use datafusion::execution::object_store::ObjectStoreUrl;
 use datafusion::logical_expr::{
-    utils::conjunction, TableProviderFilterPushDown, TableType,
+    utils::conjunction, TableProviderFilterPushDown, TableScanAggregate, TableType,
 };
 use datafusion::parquet::arrow::arrow_reader::statistics::StatisticsConverter;
 use datafusion::parquet::arrow::{
@@ -224,6 +224,7 @@ impl TableProvider for IndexTableProvider {
         state: &dyn Session,
         projection: Option<&Vec<usize>>,
         filters: &[Expr],
+        _aggregate: Option<&TableScanAggregate>,
         limit: Option<usize>,
     ) -> Result<Arc<dyn ExecutionPlan>> {
         let df_schema = DFSchema::try_from(self.schema())?;

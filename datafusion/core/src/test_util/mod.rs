@@ -42,7 +42,9 @@ use arrow::datatypes::{DataType, Field, Schema, SchemaRef};
 use arrow::record_batch::RecordBatch;
 use datafusion_catalog::Session;
 use datafusion_common::TableReference;
-use datafusion_expr::{CreateExternalTable, Expr, SortExpr, TableType};
+use datafusion_expr::{
+    CreateExternalTable, Expr, SortExpr, TableScanAggregate, TableType,
+};
 
 use async_trait::async_trait;
 
@@ -213,6 +215,7 @@ impl TableProvider for TestTableProvider {
         _state: &dyn Session,
         _projection: Option<&Vec<usize>>,
         _filters: &[Expr],
+        _aggregate: Option<&TableScanAggregate>,
         _limit: Option<usize>,
     ) -> Result<Arc<dyn ExecutionPlan>> {
         unimplemented!("TestTableProvider is a stub for testing.")

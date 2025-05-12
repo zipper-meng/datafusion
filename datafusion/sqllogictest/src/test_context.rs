@@ -32,7 +32,9 @@ use datafusion::catalog::{
     CatalogProvider, MemoryCatalogProvider, MemorySchemaProvider, Session,
 };
 use datafusion::common::DataFusionError;
-use datafusion::logical_expr::{create_udf, ColumnarValue, Expr, ScalarUDF, Volatility};
+use datafusion::logical_expr::{
+    create_udf, ColumnarValue, Expr, ScalarUDF, TableScanAggregate, Volatility,
+};
 use datafusion::physical_plan::ExecutionPlan;
 use datafusion::prelude::*;
 use datafusion::{
@@ -236,6 +238,7 @@ pub async fn register_temp_table(ctx: &SessionContext) {
             _state: &dyn Session,
             _: Option<&Vec<usize>>,
             _: &[Expr],
+            _: Option<&TableScanAggregate>,
             _: Option<usize>,
         ) -> Result<Arc<dyn ExecutionPlan>, DataFusionError> {
             unimplemented!()

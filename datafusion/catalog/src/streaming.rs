@@ -26,7 +26,7 @@ use async_trait::async_trait;
 use crate::Session;
 use crate::TableProvider;
 use datafusion_common::{plan_err, Result};
-use datafusion_expr::{Expr, TableType};
+use datafusion_expr::{Expr, TableScanAggregate, TableType};
 use datafusion_physical_plan::streaming::{PartitionStream, StreamingTableExec};
 use datafusion_physical_plan::ExecutionPlan;
 use log::debug;
@@ -88,6 +88,7 @@ impl TableProvider for StreamingTable {
         _state: &dyn Session,
         projection: Option<&Vec<usize>>,
         _filters: &[Expr],
+        _aggregate: Option<&TableScanAggregate>,
         limit: Option<usize>,
     ) -> Result<Arc<dyn ExecutionPlan>> {
         Ok(Arc::new(StreamingTableExec::try_new(

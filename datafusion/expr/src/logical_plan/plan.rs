@@ -1115,10 +1115,14 @@ impl LogicalPlan {
             }
             LogicalPlan::TableScan(ts) => {
                 self.assert_no_inputs(inputs)?;
-                Ok(LogicalPlan::TableScan(TableScan {
-                    filters: expr,
-                    ..ts.clone()
-                }))
+                if ts.is_aggregate_filter_scan() {
+                    Ok(self.clone())
+                } else {
+                    Ok(LogicalPlan::TableScan(TableScan {
+                        filters: expr,
+                        ..ts.clone()
+                    }))
+                }
             }
             LogicalPlan::EmptyRelation(_)
             | LogicalPlan::Ddl(_)
@@ -1747,6 +1751,7 @@ impl LogicalPlan {
                         ref table_name,
                         ref projection,
                         ref filters,
+                        ref aggregate,
                         ref fetch,
                         ..
                     }) => {
@@ -1808,6 +1813,15 @@ impl LogicalPlan {
                                     ", unsupported_filters=[{}]",
                                     expr_vec_fmt!(unsupported_filters)
                                 )?;
+                            }
+                        }
+
+                        if let Some(TableScanAggregate { group_expr, aggr_expr, .. }) = aggregate {
+                            if !group_expr.is_empty() {
+                                write!(f, ", group=[{}]", expr_vec_fmt!(group_expr))?;
+                            }
+                            if !aggr_expr.is_empty() {
+                                write!(f, ", aggr=[{}]", expr_vec_fmt!(aggr_expr))?;
                             }
                         }
 
@@ -2500,6 +2514,17 @@ impl PartialOrd for Window {
     }
 }
 
+/// Aggregate definition for TableScan.
+#[derive(Clone, PartialEq, Eq, Hash)]
+pub struct TableScanAggregate {
+    /// Grouping expressions
+    pub group_expr: Vec<Expr>,
+    /// Aggregate expressions
+    pub aggr_expr: Vec<Expr>,
+    /// The schema description of the aggregate output
+    pub schema: DFSchemaRef,
+}
+
 /// Produces rows from a table provider by reference or from the context
 #[derive(Clone)]
 pub struct TableScan {
@@ -2513,8 +2538,16 @@ pub struct TableScan {
     pub projected_schema: DFSchemaRef,
     /// Optional expressions to be used as filters by the table provider
     pub filters: Vec<Expr>,
+    /// Optional aggregate with grouping expressions (cnosdb).
+    pub aggregate: Option<TableScanAggregate>,
     /// Optional number of rows to read
     pub fetch: Option<usize>,
+}
+
+impl TableScan {
+    pub fn is_aggregate_filter_scan(&self) -> bool {
+        self.aggregate.is_some()
+    }
 }
 
 impl Debug for TableScan {
@@ -2591,6 +2624,7 @@ impl TableScan {
         table_source: Arc<dyn TableSource>,
         projection: Option<Vec<usize>>,
         filters: Vec<Expr>,
+        aggregate: Option<TableScanAggregate>,
         fetch: Option<usize>,
     ) -> Result<Self> {
         let table_name = table_name.into();
@@ -2632,6 +2666,7 @@ impl TableScan {
             projection,
             projected_schema,
             filters,
+            aggregate,
             fetch,
         })
     }
@@ -4489,6 +4524,7 @@ digraph {
             projection: None,
             projected_schema: Arc::clone(&schema),
             filters: vec![],
+            aggregate: None,
             fetch: None,
         }));
         let col = schema.field_names()[0].clone();
@@ -4519,6 +4555,7 @@ digraph {
             projection: None,
             projected_schema: Arc::clone(&unique_schema),
             filters: vec![],
+            aggregate: None,
             fetch: None,
         }));
         let col = schema.field_names()[0].clone();

@@ -563,6 +563,7 @@ pub fn parse_expr(
                     _ => Some(parse_sorts(&pb.order_by, registry, codec)?),
                 },
                 None,
+                false,
             )))
         }
 

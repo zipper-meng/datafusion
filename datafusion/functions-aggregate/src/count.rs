@@ -79,6 +79,7 @@ pub fn count_distinct(expr: Expr) -> Expr {
         None,
         None,
         None,
+        false,
     ))
 }
 

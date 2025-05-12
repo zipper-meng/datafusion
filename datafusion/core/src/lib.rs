@@ -821,7 +821,7 @@ pub mod functions_table {
 
 /// re-export of variable provider for `@name` and `@@name` style runtime values.
 pub mod variable {
-    pub use datafusion_expr::var_provider::{VarProvider, VarType};
+    pub use datafusion_expr::var_provider::{is_system_variables, VarProvider, VarType};
 }
 
 #[cfg(not(target_arch = "wasm32"))]

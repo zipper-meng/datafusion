@@ -23,7 +23,7 @@ use datafusion_catalog::Session;
 use datafusion_catalog::TableFunctionImpl;
 use datafusion_catalog::TableProvider;
 use datafusion_common::{plan_err, Result, ScalarValue};
-use datafusion_expr::{Expr, TableType};
+use datafusion_expr::{Expr, TableScanAggregate, TableType};
 use datafusion_physical_plan::memory::{LazyBatchGenerator, LazyMemoryExec};
 use datafusion_physical_plan::ExecutionPlan;
 use parking_lot::RwLock;
@@ -140,6 +140,7 @@ impl TableProvider for GenerateSeriesTable {
         state: &dyn Session,
         projection: Option<&Vec<usize>>,
         _filters: &[Expr],
+        _aggregate: Option<&TableScanAggregate>,
         _limit: Option<usize>,
     ) -> Result<Arc<dyn ExecutionPlan>> {
         let batch_size = state.config_options().execution.batch_size;

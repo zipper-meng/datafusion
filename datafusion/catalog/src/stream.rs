@@ -33,7 +33,9 @@ use datafusion_common_runtime::SpawnedTask;
 use datafusion_datasource::sink::{DataSink, DataSinkExec};
 use datafusion_execution::{SendableRecordBatchStream, TaskContext};
 use datafusion_expr::dml::InsertOp;
-use datafusion_expr::{CreateExternalTable, Expr, SortExpr, TableType};
+use datafusion_expr::{
+    CreateExternalTable, Expr, SortExpr, TableScanAggregate, TableType,
+};
 use datafusion_physical_expr::create_ordering;
 use datafusion_physical_plan::stream::RecordBatchReceiverStreamBuilder;
 use datafusion_physical_plan::streaming::{PartitionStream, StreamingTableExec};
@@ -324,6 +326,7 @@ impl TableProvider for StreamTable {
         _state: &dyn Session,
         projection: Option<&Vec<usize>>,
         _filters: &[Expr],
+        _aggregate: Option<&TableScanAggregate>,
         limit: Option<usize>,
     ) -> Result<Arc<dyn ExecutionPlan>> {
         let projected_schema = match projection {

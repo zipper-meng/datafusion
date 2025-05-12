@@ -41,6 +41,7 @@ impl ExprPlanner for AggregateFunctionPlanner {
             filter,
             order_by,
             null_treatment,
+            can_be_pushed_down,
         } = raw_expr;
 
         let origin_expr = Expr::AggregateFunction(AggregateFunction {
@@ -51,6 +52,7 @@ impl ExprPlanner for AggregateFunctionPlanner {
                 filter,
                 order_by,
                 null_treatment,
+                can_be_pushed_down,
             },
         });
 
@@ -65,6 +67,7 @@ impl ExprPlanner for AggregateFunctionPlanner {
                     filter,
                     order_by,
                     null_treatment,
+                    can_be_pushed_down,
                 },
         }) = origin_expr
         else {
@@ -77,6 +80,7 @@ impl ExprPlanner for AggregateFunctionPlanner {
             filter,
             order_by,
             null_treatment,
+            can_be_pushed_down,
         };
 
         // handle count() and count(*) case
@@ -96,6 +100,7 @@ impl ExprPlanner for AggregateFunctionPlanner {
                 filter,
                 order_by,
                 null_treatment,
+                can_be_pushed_down,
             } = raw_expr;
 
             let new_expr = Expr::AggregateFunction(AggregateFunction::new_udf(
@@ -105,6 +110,7 @@ impl ExprPlanner for AggregateFunctionPlanner {
                 filter,
                 order_by,
                 null_treatment,
+                can_be_pushed_down,
             ));
 
             let new_expr = saved_name.restore(new_expr);

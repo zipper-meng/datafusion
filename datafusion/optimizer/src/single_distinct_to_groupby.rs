@@ -76,6 +76,7 @@ fn is_single_distinct_agg(aggr_expr: &[Expr]) -> Result<bool> {
                     filter,
                     order_by,
                     null_treatment: _,
+                    can_be_pushed_down: _,
                 },
         }) = expr
         {
@@ -202,6 +203,7 @@ impl OptimizerRule for SingleDistinctToGroupBy {
                                     None,
                                     None,
                                     None,
+                                    false,
                                 )))
                                 // if the aggregate function is not distinct, we need to rewrite it like two phase aggregation
                             } else {
@@ -215,6 +217,7 @@ impl OptimizerRule for SingleDistinctToGroupBy {
                                         None,
                                         None,
                                         None,
+                                        false,
                                     ))
                                     .alias(&alias_str),
                                 );
@@ -225,6 +228,7 @@ impl OptimizerRule for SingleDistinctToGroupBy {
                                     None,
                                     None,
                                     None,
+                                    false,
                                 )))
                             }
                         }
@@ -297,6 +301,7 @@ mod tests {
             None,
             None,
             None,
+            false,
         ))
     }
 
@@ -578,6 +583,7 @@ mod tests {
             Some(Box::new(col("a").gt(lit(5)))),
             None,
             None,
+            false,
         ));
         let plan = LogicalPlanBuilder::from(table_scan)
             .aggregate(vec![col("c")], vec![expr, count_distinct(col("b"))])?
@@ -621,6 +627,7 @@ mod tests {
             None,
             Some(vec![col("a").sort(true, false)]),
             None,
+            false,
         ));
         let plan = LogicalPlanBuilder::from(table_scan)
             .aggregate(vec![col("c")], vec![expr, count_distinct(col("b"))])?

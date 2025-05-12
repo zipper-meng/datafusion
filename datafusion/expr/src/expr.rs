@@ -798,6 +798,9 @@ pub struct AggregateFunctionParams {
     /// Optional ordering
     pub order_by: Option<Vec<Sort>>,
     pub null_treatment: Option<NullTreatment>,
+
+    /// Whether it can be pushed down, TODO(zipper): remove this
+    pub can_be_pushed_down: bool,
 }
 
 impl AggregateFunction {
@@ -809,6 +812,7 @@ impl AggregateFunction {
         filter: Option<Box<Expr>>,
         order_by: Option<Vec<Sort>>,
         null_treatment: Option<NullTreatment>,
+        can_be_pushed_down: bool,
     ) -> Self {
         Self {
             func,
@@ -818,6 +822,7 @@ impl AggregateFunction {
                 filter,
                 order_by,
                 null_treatment,
+                can_be_pushed_down,
             },
         }
     }
@@ -2023,6 +2028,7 @@ impl NormalizeEq for Expr {
                             filter: self_filter,
                             order_by: self_order_by,
                             null_treatment: self_null_treatment,
+                            can_be_pushed_down: _,
                         },
                 }),
                 Expr::AggregateFunction(AggregateFunction {
@@ -2034,6 +2040,7 @@ impl NormalizeEq for Expr {
                             filter: other_filter,
                             order_by: other_order_by,
                             null_treatment: other_null_treatment,
+                            can_be_pushed_down: _,
                         },
                 }),
             ) => {
@@ -2329,6 +2336,7 @@ impl HashNode for Expr {
                         filter: _,
                         order_by: _,
                         null_treatment,
+                        can_be_pushed_down: _,
                     },
             }) => {
                 func.hash(state);

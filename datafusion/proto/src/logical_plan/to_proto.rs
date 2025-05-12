@@ -362,6 +362,7 @@ pub fn serialize_expr(
                     ref filter,
                     ref order_by,
                     null_treatment: _,
+                    can_be_pushed_down: _,
                 },
         }) => {
             let mut buf = Vec::new();

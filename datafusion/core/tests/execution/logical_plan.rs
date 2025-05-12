@@ -66,6 +66,7 @@ async fn count_only_nulls() -> Result<()> {
                 filter: None,
                 order_by: None,
                 null_treatment: None,
+                can_be_pushed_down: false,
             },
         })],
     )?);

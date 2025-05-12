@@ -494,8 +494,14 @@ impl LogicalPlanBuilder {
         filters: Vec<Expr>,
         fetch: Option<usize>,
     ) -> Result<Self> {
-        let table_scan =
-            TableScan::try_new(table_name, table_source, projection, filters, fetch)?;
+        let table_scan = TableScan::try_new(
+            table_name,
+            table_source,
+            projection,
+            filters,
+            None,
+            fetch,
+        )?;
 
         // Inline TableScan
         if table_scan.filters.is_empty() {

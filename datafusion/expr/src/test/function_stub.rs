@@ -62,6 +62,7 @@ pub fn sum(expr: Expr) -> Expr {
         None,
         None,
         None,
+        false,
     ))
 }
 
@@ -75,6 +76,7 @@ pub fn count(expr: Expr) -> Expr {
         None,
         None,
         None,
+        true,
     ))
 }
 
@@ -88,6 +90,7 @@ pub fn avg(expr: Expr) -> Expr {
         None,
         None,
         None,
+        false,
     ))
 }
 
@@ -288,6 +291,7 @@ pub fn min(expr: Expr) -> Expr {
         None,
         None,
         None,
+        false,
     ))
 }
 
@@ -373,6 +377,7 @@ pub fn max(expr: Expr) -> Expr {
         None,
         None,
         None,
+        false,
     ))
 }
 

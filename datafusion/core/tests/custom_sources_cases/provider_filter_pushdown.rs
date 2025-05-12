@@ -42,6 +42,7 @@ use datafusion_physical_expr::EquivalenceProperties;
 use datafusion_physical_plan::execution_plan::{Boundedness, EmissionType};
 
 use async_trait::async_trait;
+use datafusion_expr::TableScanAggregate;
 
 fn create_batch(value: i32, num_rows: usize) -> Result<RecordBatch> {
     let mut builder = Int32Builder::with_capacity(num_rows);
@@ -172,6 +173,7 @@ impl TableProvider for CustomProvider {
         _state: &dyn Session,
         projection: Option<&Vec<usize>>,
         filters: &[Expr],
+        _aggregate: Option<&TableScanAggregate>,
         _: Option<usize>,
     ) -> Result<Arc<dyn ExecutionPlan>> {
         let empty = Vec::new();
