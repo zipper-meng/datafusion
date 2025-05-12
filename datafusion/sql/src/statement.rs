@@ -1384,7 +1384,7 @@ impl<S: ContextProvider> SqlToRel<'_, S> {
         }))
     }
 
-    fn build_order_by(
+    pub fn build_order_by(
         &self,
         order_exprs: Vec<LexOrdering>,
         schema: &DFSchemaRef,
